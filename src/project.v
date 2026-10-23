@@ -94,9 +94,10 @@ module tt_um_pog_quiz #(
                       (g > p && g > o) ? GREEN : ORANGE;
 
   // ---------------------------------------------------------------- display
+  // Restarted on every press, so the result appears (blink on) the moment Q15 is answered.
   reg [BLINK_W-1:0] blink_cnt;
   always @(posedge clk) begin
-    if (!rst_n) blink_cnt <= 0;
+    if (!rst_n || press) blink_cnt <= 0;
     else blink_cnt <= blink_cnt + 1'b1;
   end
   wire blink_on = ~blink_cnt[BLINK_W-1];
