@@ -18,3 +18,5 @@ test/sim_build/
 test/results.xml
 test/tb.fst
 __pycache__/
+test/results_gl.xml
+test/results_gl_verilator.xml

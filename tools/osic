@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Run chip tools from any checkout, without machine-specific host paths.
+set -euo pipefail
+repo=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)
+exec docker run --rm -i --pull=never \
+  -v "$repo:/w" -w /w \
+  -e PDK=sky130A -e STD_CELL_LIBRARY=sky130_fd_sc_hd \
+  --entrypoint /bin/bash "${OSIC_IMAGE:-hpretl/iic-osic-tools:2026.05}" \
+  -lc 'export PDK=sky130A PDK_ROOT=/foss/pdks PDKPATH=/foss/pdks/sky130A STD_CELL_LIBRARY=sky130_fd_sc_hd; exec "$@"' osic "$@"

@@ -30,9 +30,11 @@ module tb ();
   // Debounce counter width, read by test.py: short in RTL sim, the real 17 bits at gate level.
 `ifdef GL_TEST
   wire [7:0] debounce_w = 8'd17;
+  wire [7:0] blink_w = 8'd23;
   tt_um_pog_quiz user_project (
 `else
   wire [7:0] debounce_w = 8'd3;
+  wire [7:0] blink_w = 8'd4;
   tt_um_pog_quiz #(.DEBOUNCE_W(3), .BLINK_W(4)) user_project (
 `endif
 

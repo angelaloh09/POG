@@ -7,7 +7,7 @@ import os
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles
+from cocotb.triggers import ClockCycles, Timer, ValueChange, with_timeout
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 VECTORS = json.load(open(os.path.join(HERE, '..', 'model', 'vectors.json')))
@@ -65,6 +65,15 @@ async def play(dut, v, hold):
     for _ in range(40):
         seen.add(int(dut.uo_out.value))
         await ClockCycles(dut.clk, 1)
+    # In gate-level simulation the real blink half-period is 2^22 clocks.
+    # A 40-clock observation can legitimately fall entirely in the dark phase.
+    # Wait for the display to change, bounded by one half-period, then allow
+    # the standard-cell combinational paths to settle before sampling.
+    if seen == {0}:
+        half_period_ns = (1 << (int(dut.blink_w.value) - 1)) * 100
+        await with_timeout(ValueChange(dut.uo_out), half_period_ns + 100, "ns")
+        await Timer(50, unit="ns")
+        seen.add(int(dut.uo_out.value))
     assert seen <= {LETTER[v['result']], 0} and LETTER[v['result']] in seen, f'display {seen}'
 
 
@@ -73,7 +82,8 @@ async def test_vectors(dut):
     """Every model vector, back to back; Next on the result screen restarts the quiz."""
     hold = await setup(dut)
     gl = int(dut.debounce_w.value) > 8
-    vecs = VECTORS[:3] if gl else VECTORS
+    # The first three vectors all score Orange; cover every result at gate level.
+    vecs = [next(v for v in VECTORS if v["result"] == r) for r in range(3)] if gl else VECTORS
     for n, v in enumerate(vecs):
         await play(dut, v, hold)
         await press(dut, 0, hold)                       # restart

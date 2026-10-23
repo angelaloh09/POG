@@ -76,10 +76,11 @@ Pressing **Next** on the result screen restarts the quiz.
    Picture: [docs/images/pog_layout.png](docs/images/pog_layout.png).
 5. **Next:**
    - push to GitHub so the TT Action hardens it with the pinned PDK and runs the precheck and the gate-level test;
-   - fill in `docs/info.md`;
    - submit to a shuttle.
 
 ### Running things locally (IIC-OSIC-TOOLS container)
+
+See [docs/LOCAL_FLOW.md](docs/LOCAL_FLOW.md) for the portable `tools/osic` helper, verified commands, and local-versus-shuttle tool-version constraints.
 
 ```bash
 docker run --rm -v "$PWD:/w" -w /w --entrypoint /bin/bash hpretl/iic-osic-tools:2026.05 -lc 'cd test && make -B'
